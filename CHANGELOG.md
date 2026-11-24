@@ -1,112 +1,111 @@
 # Changelog
 
-Tous les changements notables de ce projet sont documentés dans ce fichier.
+All notable changes to this project are documented in this file.
 
+## [0.5.0] 2026-11-24
 
+### Breaking changes
+
+- Removed RP2040 support. This driver now targets only RP2350 (Pico 2) with Hazard3 RISC-V cores.
+- Updated all Cargo dependencies to use Hazard3 packages (`hazard3-rp`, `hazard3-time`).
+- Changed default feature from `rp2040` to `rp235xa`.
+
+### Documentation
+
+- Updated README and examples for RP235x only.
+- Removed RP2040-specific conversion examples.
+- Updated installation instructions for Hazard3 ecosystem.
 
 ## [0.4.0] - 2026-05-02
 
-- Remplacement des plages de compatibilité par des versions explicites afin d’assurer une meilleure stabilité et reproductibilité des builds.
+### Improvements
 
-### Dépendances
+- Replaced compatibility ranges with explicit dependency versions for more stable and reproducible builds.
+
+### Dependencies
 
 ```toml
 [dependencies]
-
 embassy-rp = "0.10"
 embassy-time = "0.5"
-
 ```
-
 
 ## [0.3.0] - 2026-04-25
 
-### ✨ Ajouts
+### Added
 
-- **Méthode `calibrate()`** : Calibration automatique du point zéro avec moyenne d'échantillons
-- **Intégration de `embassy-time`** : Ajout de délais (100 µs) entre les lectures de calibration pour stabiliser l'ADC
+- Automatic zero-point calibration with `calibrate()`.
+- Sample averaging to determine the real offset of the sensor.
+- `embassy-time` integration with 100 microsecond delays between calibration samples.
+- Complete usage examples for calibration and polarity detection.
+- Compatibility tables aligned with the Embassy dependency versions.
 
-### 🚀 Améliorations
+### Improved
 
-- **Précision accrue** : La calibration évite maintenant de lire des pics de bruit successifs
-- **Documentation complète** : Exemples d'utilisation pour la calibration et la détection de polarité
-- **Tableaux de compatibilité** : Alignement avec les versions d'embassy-time
+- Measurement precision is improved by separating calibration reads and reducing repeated noise peaks.
+- The API remains compatible with previous releases for easier migration from 0.2.x.
 
-### ✅ Rétrocompatibilité
-
-- Toutes les API précédentes restent inchangées
-- Migration facile depuis les versions 0.2.x
-
-### 📌 Avertissements et limitations matérielles
+### Hardware notes
 
 #### RP2350B (Pico 2 Zero / 80 pins)
 
-**⚠️ Important** : Sur certaines cartes de développement (notamment la **Waveshare Pico Zero 2350B**), les broches ADC sont **multiplexées ou partagées physiquement** avec le bus de données de la carte SD (QSPI/SDIO).
+On some RP2350B development boards, ADC pins can be multiplexed or shared physically with the
+SD card or QSPI/SDIO bus.
 
-- **Symptôme** : Valeurs brutes (`read_raw`) instables, bruit important ou lectures "fantômes"
-- **Cause racine** : Interférences dues au trafic numérique haute fréquence sur le bus partagé
-- **Solution** : 
-  - Utilisez des broches ADC isolées du trafic numérique haute fréquence
-  - Assurez-vous qu'aucun autre périphérique ne sollicite le bus partagé pendant les lectures analogiques
-  - Envisagez d'ajouter du filtrage analogique (condensateur 100 nF en parallèle)
+- Symptom: unstable raw `read_raw()` values, noise, or phantom readings.
+- Cause: interference from high-frequency digital traffic on the shared bus.
+- Solution: use ADC pins isolated from digital traffic and ensure that no shared peripheral is active
+  during analog reads. Filtering, such as a 100 nF capacitor, may also help.
 
-#### RP2350A (Pico 2 Standard)
+#### RP2350A (Pico 2)
 
-✅ **Fonctionne parfaitement** sur les broches ADC dédiées (GP26 testé).
+The dedicated ADC pin GP26 was tested successfully.
 
-#### Calibration matérielle et points de repos réels
+#### Real zero points
 
-**Important pour la précision** : Les points de repos théoriques (~2048 sur 12 bits, ~8192 sur 14 bits) 
-ne correspondent **pas toujours** à la réalité sur le matériel.
+Theoretical 12-bit and 14-bit midpoints do not always match the measured hardware midpoint.
 
-**Valeurs réelles mesurées en absence de champ magnétique (branche sur 3.3V)** :
-- RP2350A avec calibration : **~2060** (au lieu de 2048)
-- Variation due à : résistance interne du capteur, thermique, stabilité de l'alimentation
+Measured example in the absence of a magnetic field:
 
-**Recommandation** : Appelez toujours `calibrate()` au démarrage pour obtenir le point de repos réel de votre installation.
+- RP2350A with calibration: approximately 2060 instead of 2048.
+- Variation depends on sensor resistance, temperature, supply stability, and PCB layout.
 
----
+Recommendation: call `calibrate()` at startup to obtain the real midpoint for the installation.
 
-## ⚠️ Versions antérieures (< 0.3.0)
+## Previous versions (< 0.3.0)
 
-### Limitations critiques de v0.2.0 et antérieures
+### v0.2.0 limitations
 
-Les versions 0.2.0 et antérieures présentent des défauts fondamentaux rendant impossibles les mesures précises :
+Earlier versions did not provide automatic zero-point calibration or stabilization between
+ADC reads. They assumed that the midpoint was always exactly 2048 for 12-bit readings or 8192
+for 14-bit readings.
 
-#### 🔴 Problèmes identifiés
+Practical consequences:
 
-- **Pas de calibration automatique** : Impossibilité d'adapter le point de repos à l'environnement réel
-- **Pas de stabilisation ADC** : Lectures de calibration successives sans délai, capturant le même pic de bruit
-- **Conception trop idéaliste** : Supposaient que l'ADC commencerait toujours à 50% de VCC
-  - RP2040 (12 bits) : Attendait 2048 constant
-  - RP235x (14 bits) : Attendait 8192 constant
-- **Précision insuffisante** : Les mesures dérivent fortement avec la température et les variations de composants
-- **Absence de contrôle de l'offset** : Aucun mécanisme pour corriger les décalages réels du capteur
+- inaccurate polarity detection;
+- incorrect signed deviation over time;
+- unpredictable behavior with temperature changes;
+- poor compatibility with Hall modules that have real component variation.
 
-#### 🚨 Conséquences pratiques
+### Migration
 
-- Détections de polarité imprécises
-- Déviation signée incorrecte sur longue durée
-- Comportement imprévisible lors de changements thermiques
-- Incompatibilité avec les modules Hall réels (qui varient naturellement)
-
-#### ✅ Migration recommandée
+Before 0.3.0:
 
 ```rust
-// ❌ AVANT (0.2.0) - Non recommandé
 let deviation = sensor.read_deviation(ZERO_FIELD_RAW_12BIT).await;
-
-// ✅ APRÈS (0.3.0+) - Recommandé
-let zero_offset = sensor.calibrate(64).await;  // Une seule fois au démarrage
-let deviation = sensor.read_deviation(zero_offset).await;  // Lectures précises
 ```
 
-**Les versions 0.4 + sont fortement recommandées pour tout nouveau projet.**
+With 0.3.0 or later:
 
----
+```rust
+let zero_offset = sensor.calibrate(64).await;
+let deviation = sensor.read_deviation(zero_offset).await;
+```
 
-## Format de ce changelog
+Versions 0.4.0 and later are strongly recommended for new projects.
 
-Ce projet respecte [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+## Format
 
-Les versions suivent [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+This changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+Releases follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
