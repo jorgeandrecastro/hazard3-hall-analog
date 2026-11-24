@@ -135,14 +135,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc2d050bdc5c21e0862a89256ed8029ae6c290a93aecefc73084b3002cdebb01"
 
 [[package]]
-name = "embassy-hall-analog"
-version = "0.4.0"
-dependencies = [
- "hazard3-rp",
- "hazard3-time",
-]
-
-[[package]]
 name = "embedded-hal"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -292,6 +284,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d62b1a1a31e923cb9a04cbe221f6aec2b51676e055be001659821479dc850021"
 dependencies = [
  "critical-section",
+]
+
+[[package]]
+name = "hazard3-hall-analog"
+version = "0.5.0"
+dependencies = [
+ "hazard3-rp",
+ "hazard3-time",
 ]
 
 [[package]]
