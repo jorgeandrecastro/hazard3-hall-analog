@@ -1,8 +1,8 @@
 # Hazard3 Hall Analog
 
-[![Crates.io](https://img.shields.io/crates/v/embassy-hall-analog.svg)](https://crates.io/crates/embassy-hall-analog)
-[![Documentation](https://docs.rs/embassy-hall-analog/badge.svg)](https://docs.rs/embassy-hall-analog)
-[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![Crates.io](https://img.shields.io/crates/v/hazard3-hall-analog.svg)](https://crates.io/crates/hazard3-hall-analog)
+[![Documentation](https://docs.rs/hazard3-hall-analog/badge.svg)](https://docs.rs/hazard3-hall-analog)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20or%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 
 `hazard3-hall-analog` is an async, `no_std` Rust driver for the OPEN-SMART linear Hall-effect
 sensor module, compatible with 49E and SS49E sensors. It is designed for RP235x (Pico 2)
@@ -52,14 +52,14 @@ For the RP2350A (Pico 2), use the default `rp235xa` feature:
 
 ```toml
 [dependencies]
-embassy-hall-analog = "0.4.0"
+embassy-hall-analog = "0.6.0"
 ```
 
 For the RP2350B:
 
 ```toml
 [dependencies]
-embassy-hall-analog = { version = "0.4.0", default-features = false, features = ["rp235xb"] }
+embassy-hall-analog = { version = "0.6.0", default-features = false, features = ["rp235xb"] }
 ```
 
 The package automatically uses the Hazard3 replacement packages:
@@ -242,10 +242,19 @@ ADC pin GP26.
 
 See [CHANGELOG.md](CHANGELOG.md) for the detailed release history.
 
-## License
+## 🛡️ License
 
-Distributed under the **GPL-2.0-or-later** license. See [LICENSE](LICENSE) for details.
+Licensed under either of:
 
+    MIT license (http://opensource.org/licenses/MIT)
+
+    Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+at your option.
+
+## 🦅 About
+
+Developed by Jorge Andre Castro.
 ## About
 
 Developed and tested by Jorge Andre Castro. This project is part of the broader Hazard3
